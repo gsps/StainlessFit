@@ -15,21 +15,20 @@ case class Rule(
     rc.bench.time("Rule " + name)
     { apply(g) }.flatMap {
       case (sgs, merge) =>
-        val subTrees: Option[(Boolean, List[NodeTree[Judgment]])] =
+        val subTrees =
           sgs.foldLeft[Option[(Boolean, List[NodeTree[Judgment]])]](Some(true, List())) {
             case (accOpt, fsg) =>
-              accOpt.flatMap {
-                case (success, acc) =>
-                  subgoalSolver(fsg(acc.map(_.node))).map {
-                    case (subSuccess, subTree) =>
-                      (success && subSuccess, acc :+ subTree)
-                  }
+              for {
+                (success, acc)        <- accOpt
+                (subSuccess, subTree) <- subgoalSolver(fsg(acc.map(_.node)))
               }
+                yield (success && subSuccess, acc :+ subTree)
           }
-        subTrees.map { case (success, l) =>
-          val (mergeSuccess, mergeJudgment) = merge(l.map(_.node))
-          (success && mergeSuccess, NodeTree(mergeJudgment, l))
+        for {
+          (success, l) <- subTrees
+          (mergeSuccess, mergeJudgment) = merge(l.map(_.node))
         }
+          yield (success && mergeSuccess, NodeTree(mergeJudgment, l))
     }
   }
 }
