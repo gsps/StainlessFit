@@ -984,9 +984,9 @@ case class Match(t: Tree, t1: Tree, t2: Tree) extends Tree {
     t2 match {
       case Bind(n, tn) =>
         t.toString + " match {\n" +
-        "  case 0 =>\n" +
-        t1.toString.replaceAll("\n", "\n    ") + "\n"
-        "  case " + n.toString + " =>\n" +
+        "  case 0 =>\n    " +
+        t1.toString.replaceAll("\n", "\n    ") + "\n" +
+        "  case " + n.toString + " =>\n    " +
         tn.toString.replaceAll("\n", "\n    ") + "\n}"
       case _ => "<Missing bind in Match>"
     }
@@ -1209,7 +1209,7 @@ case class PolyForallType(t: Tree) extends Tree {
   override def toString: String = {
     t match {
       case Bind(a, t) =>
-        "(∀" + a.toString + ": Type. " + t.toString
+        "(∀" + a.toString + ": Type. " + t.toString + ")"
       case _ => "<Missing bind in PolyForallType>"
     }
   }
