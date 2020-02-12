@@ -1,0 +1,5 @@
+// fun id (x [Nat]) = { x }
+
+// id 1
+
+fun of (x [Unit => Unit]) = { x } (fun of (u [Unit]) = { u })

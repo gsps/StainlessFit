@@ -1,0 +1,4 @@
+fun id[X] (x [X]) [returns X] = { x }
+
+val x = left ();
+id [Unit + Unit] x

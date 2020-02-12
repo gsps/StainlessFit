@@ -5,6 +5,7 @@ import core.trees._
 import core.interpreter._
 import core.typechecker._
 import core.typechecker.Derivation._
+import core.partial._
 
 import parser.ScalaParser
 import parser.ScalaLexer
@@ -76,8 +77,12 @@ object Core {
     parseFile(rc, f) flatMap { src =>
       val (t1, max) = Tree.setId(src, primitives, 0)
       val t2 = replacePrimitives(t1)
+      println("====="); println(t2)
 
-      new TypeChecker().infer(t2, max) match {
+      val t3 = if (rc.config.partial) Partializer(t2) else t2
+      println("====="); println(t3)
+
+      new TypeChecker().infer(t3, max) match {
         case None => Left(s"Could not typecheck: $f")
         case Some((success, tree)) =>
           if (html)
