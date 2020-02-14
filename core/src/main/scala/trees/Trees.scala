@@ -311,6 +311,8 @@ object Tree {
       case PolyForallType(bind) =>
         val (newBind, max1) = setId(bind, m, max)
         (PolyForallType(newBind), max1)
+      case TopType =>
+        (TopType, max)
 
       case _ => throw new java.lang.Exception(s"Function `setId` is not defined on tree: $t")
     }
@@ -779,8 +781,8 @@ object Tree {
 }
 
 case class Identifier(id: Int, name: String) extends Positioned {
-  // override def toString: String = name + "#" + id
-  override def toString: String = name
+  override def toString: String = name + "#" + id
+  // override def toString: String = name
 
   def isTypeIdentifier: Boolean = name.size > 0 && name(0).isUpper
   def isTermIdentifier: Boolean = name.size > 0 && name(0).isLower
@@ -1130,11 +1132,11 @@ case class TypeApp(t1: Tree, t2: Tree) extends Tree {
 }
 
 case object BottomType extends Tree {
-  override def toString: String = "⊥"
+  override def toString: String = "Bottom"
 }
 
 case object TopType extends Tree {
-  override def toString: String = "⊤"
+  override def toString: String = "Top"
 }
 
 case object UnitType extends Tree {

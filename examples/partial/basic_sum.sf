@@ -1,4 +1,7 @@
-fun id[X] (x [X]) [returns X] = { x }
+// FIXME: TypeAbs not supported at the moment (should be pushed further in, see translation)
 
-val x = left ();
-id [Unit + Unit] x
+//fun id [X] (x [X]) [returns X] = { x }
+//
+//val x = left ();
+//id [Unit + Unit] x
+()

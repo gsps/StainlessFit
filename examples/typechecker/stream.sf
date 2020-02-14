@@ -8,6 +8,14 @@ fun cons[X] (x [X]) (xs [List[X]])  [returns List[X]] = {
   [fold as List[X]](right ((x, xs)))
 }
 
+fun isEmpty[X] (xs [List[X]])  [returns Bool] = {
+  [unfold] val xsunf = xs;
+  match xsunf {
+    case left(v) => true
+    case right(v) => false
+  }
+}
+
 [type StreamN(n)[X] = Rec(n)(Stream => (X, Unit => Stream))]
 [type Stream[X] = Forall(n: Nat, StreamN(n)[X])]
 

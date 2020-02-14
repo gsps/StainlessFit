@@ -1,0 +1,4 @@
+val p = ((1, left 2), true);
+val result = (second (first p), if (second p) { first (first p) } else { 0 });
+
+result

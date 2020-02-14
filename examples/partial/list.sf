@@ -1,0 +1,41 @@
+[type List[X] = Forall(n: Nat, Rec(n)(List => (Unit + (X, List))))]
+
+val nil =
+  [fold as List[Top]](left ());
+
+fun cons (x [Top]) (xs [List[Top]]) = {
+  [fold as List[Top]](right ((x, xs)))
+}
+
+fun listMatch (xs [List[Top]]) (caseNil [Unit => Top]) (caseCons [Top => List[Top] => Top]) = {
+  [unfold] val xsUnf = xs;
+  match xsUnf {
+    case left(v) => caseNil ()
+    case right(p) => caseCons (first p) (second p)
+  }
+}
+
+val list [List[Top]] = cons 1 (cons 2 nil);
+
+// !!! Fails to infer strong enough type for `listMatch` to show `Nat` here
+val ex [Nat] =
+  listMatch
+    list
+    (fun of (u [Unit]) = { 1 })
+    (fun of (x [Top]) (xs [List[Top]]) = { 2 });
+ex
+
+//fun isEmpty[X] (xs [List[X]])  [returns Bool] = {
+//  listMatch
+//}
+
+////fun contact[X] (xs [List[X]]) (ys [List[X]])  [returns List[X]] = {
+////  [unfold] val xsu = xs;
+////  [unfold] val ysu = ys;
+////
+////  match xsu {
+////    case left(v) => ysu
+////    case right(v) => cons
+////  }
+////}
+//

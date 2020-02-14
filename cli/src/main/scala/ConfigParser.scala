@@ -34,7 +34,7 @@ object ConfigParser {
         .action((_, c) => c.copy(html = true))
         .text("Enable HTML output with typing derivation"),
       opt[Unit]("partial")
-        .action((_, c) => c.copy(html = true))
+        .action((_, c) => c.copy(partial = true))
         .text("Enable partial program transformation to support non-terminating"),
       opt[Int]("refresh")
         .action((n, c) => c.copy(refresh = n))

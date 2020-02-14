@@ -8,6 +8,8 @@ import trees._
 object TypeOperators {
   private def unify(t1: Tree, t2: Tree, f: (Tree, Tree) => Tree): Option[Tree] = {
     (t1, t2) match {
+      case (BottomType, x) => Some(t2)
+      case (x, BottomType) => Some(t1)
       case (UnitType, UnitType) => Some(UnitType)
       case (NatType, NatType) => Some(NatType)
       case (BoolType, BoolType) => Some(BoolType)

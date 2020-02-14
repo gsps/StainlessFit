@@ -1,0 +1,28 @@
+/// Translation of:
+///  fun of (x Unit) = { x } ()
+
+[type Partial[X] = Nat => (Unit + X)]
+
+fun pure [X] (x [X]) [returns Partial[X]] = {
+  fun of (n [Nat]) = { right x }
+}
+
+fun bind [X] [Y] (px [Partial[X]]) (f [X => Partial[Y]]) [returns Partial[Y]] = {
+  fun of (n [Nat]) = {
+    if (n == 0) {
+      left ()
+    } else {
+      val nn = n - 1;
+      match (px nn) {
+        case left(u) => left ()
+        case right(x) => f x nn
+      }
+    }
+  }
+}
+
+fun idunit (u [Unit]) [returns Partial[Unit]] = {
+  pure [Unit] u
+}
+
+bind [Unit] [Unit] (pure [Unit] ()) idunit

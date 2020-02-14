@@ -147,7 +147,7 @@ case object AssignationClass extends TokenClass
 case class KeyWordClass(value: String) extends TokenClass
 case class TypeClass(value: String) extends TokenClass
 
-object ScalaParser extends Syntaxes with Operators with ll1.Parsing with ll1.Debug {
+class ScalaParser(partial: Boolean) extends Syntaxes with Operators with ll1.Parsing with ll1.Debug {
 
   type Token = parser.Token
   type Kind = parser.TokenClass
@@ -475,16 +475,20 @@ object ScalaParser extends Syntaxes with Operators with ll1.Parsing with ll1.Deb
   }
 
   lazy val fixpoint: Syntax[Tree] =
-    (fixK.skip ~ opt(lsbra ~ termIdentifier ~ arrow ~ typeExpr ~ rsbra) ~
+    (fixK.skip ~ opt(lsbra ~ termIdentifier ~<~ arrow ~ typeExpr ~ rsbra) ~
     lpar.skip ~ termIdentifier ~ arrow ~ expr ~ rpar).map {
       case None ~ x ~ _ ~ e ~ _ =>
         Fix(None, Bind(Identifier(0, "_"), Bind(x, e)))
-      case Some(_ ~ n ~ _ ~ tp ~ _) ~ x ~ _ ~ e ~ _ =>
-        val body = Tree.replace(
-          x,
-          Inst(Var(x), Primitive(Minus, List(Var(n), NatLiteral(1)))),
-          e
-        )
+      case Some(_ ~ n ~ tp ~ _) ~ x ~ _ ~ e ~ _ =>
+        val body =
+          if (partial)
+            e
+          else
+            Tree.replace(
+              x,
+              Inst(Var(x), Primitive(Minus, List(Var(n), NatLiteral(1)))),
+              e
+            )
         Fix(Some(Bind(n, tp)), Bind(n, Bind(x, body)))
       case _ =>
         sys.error("Unreachable")

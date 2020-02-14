@@ -1,0 +1,6 @@
+val result = match (right 2) {
+  case left(x) => 0
+  case right(n) => n
+};
+
+result

@@ -16,17 +16,17 @@ import core.util.RunContext
 
 object Core {
 
-  def parseString(s: String): Either[String, Tree] = {
+  def parseString(parser: ScalaParser, s: String): Either[String, Tree] = {
     val it = s.iterator
-    ScalaParser(ScalaLexer(it)) match {
-      case ScalaParser.LL1.Parsed(value, _) =>
+    parser(ScalaLexer(it)) match {
+      case parser.LL1.Parsed(value, _) =>
         Right(value)
-      case ScalaParser.LL1.UnexpectedEnd(rest) =>
+      case parser.LL1.UnexpectedEnd(rest) =>
         Left(
           s"""|Error during parsing, unexpected end of input.
               |Expected token: ${rest.first.mkString("   ")}""".stripMargin
         )
-      case ScalaParser.LL1.UnexpectedToken(t, rest) =>
+      case parser.LL1.UnexpectedToken(t, rest) =>
         Left(
           s"""|Error during parsing, unexpected token at position ${t.pos}: $t
               |Expected token: ${rest.first.mkString("   ")}""".stripMargin
@@ -40,7 +40,8 @@ object Core {
     val completeString = regex.replaceAllIn(s, m =>
       scala.io.Source.fromFile(new File(f.getAbsoluteFile().getParentFile().getCanonicalPath(), m.group(1))).getLines.mkString("\n") + "\n"
     )
-    rc.bench.time("Scallion parsing") { parseString(completeString) }
+    val parser = new ScalaParser(partial = rc.config.partial)
+    rc.bench.time("Scallion parsing") { parseString(parser, completeString) }
   }
 
   val primitives = Map(
@@ -66,8 +67,9 @@ object Core {
     parseFile(rc, f) flatMap { src =>
       val (t1, _) = Tree.setId(src, primitives, 0)
       val t2 = replacePrimitives(t1)
+      val t3 = if (rc.config.partial) Partializer(t2) else t2
 
-      Interpreter.evaluate(t2.erase()) match {
+      Interpreter.evaluate(t3.erase()) match {
         case Error(error, _) => Left(error)
         case v => Right(v)
       }
@@ -80,7 +82,7 @@ object Core {
       println("====="); println(t2)
 
       val t3 = if (rc.config.partial) Partializer(t2) else t2
-      println("====="); println(t3)
+      if (rc.config.partial) { println("====="); println(t3) }
 
       new TypeChecker().infer(t3, max) match {
         case None => Left(s"Could not typecheck: $f")
